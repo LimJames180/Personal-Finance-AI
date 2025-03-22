@@ -1,0 +1,29 @@
+body {
+    background-color: #fefefe; /* eggshell white */
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.card-summary {
+    border-radius: 16px;
+    transition: all 0.2s ease-in-out;
+}
+
+.card-summary:hover {
+    transform: scale(1.02);
+}
+
+.card h6 {
+    font-weight: 600;
+}
+
+.card h3 {
+    font-size: 24px;
+}
+
+.dashboard-container {
+    padding: 20px;
+}
+
+.text-primary {
+    color: #1e3a8a !important; /* dark blue */
+}
