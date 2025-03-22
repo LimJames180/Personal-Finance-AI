@@ -52,7 +52,7 @@ def user_logout(request):
 
 @login_required
 def home(request):
-    return render(request, "home1.html")
+    return redirect("tracker_home")
 
 
 def logged_out(request):

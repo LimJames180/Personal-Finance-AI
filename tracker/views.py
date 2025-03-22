@@ -4,9 +4,8 @@ from datetime import datetime, timedelta
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Transaction
-from .forms import TransactionForm
-
+from .models import Transaction,Debt
+from .forms import TransactionForm,DebtForm
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -170,3 +169,23 @@ def analyze_text(request):
             result = aitransaction(text)
             return JsonResponse(result)
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def debt_history(request):
+    # Fetch all debts related to the logged-in user
+    debts = Debt.objects.filter(user=request.user)
+
+    if request.method == "POST":
+        form = DebtForm(request.POST)
+        if form.is_valid():
+            debt = form.save(commit=False)
+            debt.user = request.user
+            debt.save()
+            return redirect("debt_history")
+    else:
+        form = DebtForm()
+
+    context = {
+        'debts': debts,
+        'form': form,
+    }
+    return render(request, "tracker/debt_history.html", context)
