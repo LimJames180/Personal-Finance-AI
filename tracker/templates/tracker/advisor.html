@@ -11,8 +11,8 @@
       <div class="chat-container">
         <!-- Chat Header -->
         <div class="chat-header text-center p-3">
-          <h2>Financial AI Advisor</h2>
-          <p class="text-muted">Your personal guide to financial wisdom.</p>
+          <h2>OMNI AI</h2>
+          <p class="text-muted">Financial AI Advisor</p>
         </div>
 
         <!-- Chat Messages -->
@@ -20,16 +20,31 @@
           <!-- Example AI Message with Typing Animation -->
           <div class="message ai-message">
             <div class="message-content">
-              <p class="typing-animation">Hello! I'm your financial AI advisor. How can I help you today?</p>
+              <p class="typing-animation">Hello! I'm OMNI, your financial AI advisor. How can I help you today?</p>
             </div>
           </div>
+          {% if question %}
+          <div class="message user-message">
+            <div class="message-content">
+              <p><strong>Question:</strong> {{ question }}</p>
+            </div>
+          </div>
+          {% endif %}
+          {% if response %}
+          <div class="message ai-message">
+            <div class="message-content">
+              <p><strong>Response:</strong> {{ response }}</p>
+            </div>
+          </div>
+          {% endif %}
         </div>
 
         <!-- Chat Input -->
         <div class="chat-input p-3 bg-light">
           <form id="chat-form">
+            {% csrf_token %}
             <div class="input-group">
-              <input type="text" id="chat-input" class="form-control" placeholder="Type your message..." required>
+              <input type="text" id="chat-input" name="chat_text" class="form-control" placeholder="Type your message..." required>
               <button type="submit" class="btn btn-primary">Send</button>
             </div>
           </form>
@@ -155,53 +170,65 @@
 {% block scripts %}
 <script>
   // Handle chat form submission
-  document.getElementById('chat-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    // Get user input
-    const input = document.getElementById('chat-input');
-    const userMessage = input.value.trim();
-
-    if (userMessage) {
-      // Add user message to chat
-      addMessage(userMessage, 'user');
-
-      // Clear input
-      input.value = '';
-
-      // Simulate AI response (replace with actual API call)
-      setTimeout(() => {
-        const aiResponse = "This is a simulated AI response. Replace this with an actual API call.";
-        addMessage(aiResponse, 'ai', true); // Add typing animation for AI response
-      }, 1000);
-    }
+  document.getElementById('chat-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const chatText = document.querySelector('input[name="chat_text"]').value;
+    handleChatText(chatText);
   });
 
-  // Function to add a message to the chat
-  function addMessage(text, sender, isTyping = false) {
+  // Function to handle chat text
+  function handleChatText(chatText) {
+    // Display the chat text in the chat messages
     const chatMessages = document.getElementById('chat-messages');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', 'user-message');
+    messageElement.innerHTML = `<div class="message-content"><p>${chatText}</p></div>`;
+    chatMessages.appendChild(messageElement);
 
-    // Create message element
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message', `${sender}-message`);
+    // Send the chat text to the server
+    fetch("{% url 'advisor' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: new URLSearchParams({
+            'chat_text': chatText
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Display the AI response in the chat messages
+        const responseElement = document.createElement('div');
+        responseElement.classList.add('message', 'ai-message');
+        responseElement.innerHTML = `<div class="message-content"><p>${data.response}</p></div>`;
+        chatMessages.appendChild(responseElement);
 
-    const contentDiv = document.createElement('div');
-    contentDiv.classList.add('message-content');
+        // Scroll to the bottom of the chat
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 
-    if (isTyping) {
-      const typingDiv = document.createElement('div');
-      typingDiv.classList.add('typing-animation');
-      typingDiv.innerText = text;
-      contentDiv.appendChild(typingDiv);
-    } else {
-      contentDiv.innerHTML = `<p>${text}</p>`;
+    // Clear the input field
+    document.querySelector('input[name="chat_text"]').value = '';
+  }
+
+  // Helper function to get CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
-
-    messageDiv.appendChild(contentDiv);
-    chatMessages.appendChild(messageDiv);
-
-    // Scroll to bottom
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return cookieValue;
   }
 </script>
 {% endblock %}

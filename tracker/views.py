@@ -235,9 +235,19 @@ def handle_chat_text(chat_text):
     print(f"Chat text received: {chat_text}")
 
 
+from .financialai import generate_transaction_data, ai_reply
+from .models import Debt
+
+from .financialai import generate_transaction_data, ai_reply
+from .models import Transaction
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.db.models import Sum
+
 @login_required
 def advisor(request):
-    # Fetch all transactions for the logged-in user
+
     transactions = Transaction.objects.filter(user=request.user).order_by("-date")
 
     # Calculate total spending and earnings
@@ -253,6 +263,28 @@ def advisor(request):
         'total_earnings': total_earnings,
         'budget_left': budget_left,
     }
+    if request.method == 'GET':
+        chat_text = request.GET.get('chat_text')
+        print(1)
+        if chat_text:
+            print(2)
+            # Fetch all transactions for the logged-in user and generate the AI response
+            transaction_text = generate_transaction_data(request.user)
+            ai_response = ai_reply(transaction_text, chat_text)
+            print(ai_response)
+            # Return the AI response
+            context = {
+                'transactions': transactions,
+                'total_spending': total_spending,
+                'total_earnings': total_earnings,
+                'budget_left': budget_left,
+                'response': ai_response,
+                'question': chat_text,
+            }
+            return render(request, "tracker/advisor.html", context)
+
+    # Fetch all transactions for the logged-in user
+
     return render(request, "tracker/advisor.html", context)
 
 
