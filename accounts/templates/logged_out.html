@@ -1,10 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Logged Out</title>
-</head>
-<body>
-    <h2>You have been logged out.</h2>
-    <a href="{% url 'login' %}">Login again</a>
-</body>
-</html>
+{% extends 'tracker/base_auth.html' %}
+{% load static %}
+
+{% block title %}Logged Out | ExpenseWise{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="min-height: 100vh; background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+  <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-lg border-0" style="border-radius: 15px;">
+        <!-- Card Header -->
+        <div class="card-header bg-white border-0 text-center py-4">
+          <img src="{% static 'tracker/images/logo.png' %}" alt="ExpenseWise Logo" class="mb-3" style="width: 80px;">
+          <h2 class="mb-0" style="color: #333; font-weight: 600;">Logged Out</h2>
+          <p class="mt-2" style="color: #666;">You have been successfully logged out.</p>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body p-4 text-center">
+          <a href="{% url 'login' %}" class="btn btn-primary btn-lg" 
+             style="border-radius: 10px; background-color: #0d6efd; border: none; font-weight: 500;">
+            Login Again
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

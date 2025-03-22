@@ -1,21 +1,76 @@
-<!-- register.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-</head>
-<body>
-    <h2>Register</h2>
-    {% for message in messages %}
-        <p style="color: red;">{{ message }}</p>
-    {% endfor %}
-    <form method="POST">
-        {% csrf_token %}
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="password" name="password2" placeholder="Confirm Password" required>
-        <button type="submit">Register</button>
-    </form>
-    <a href="{% url 'login' %}">Already have an account? Login</a>
-</body>
-</html>
+{% extends 'tracker/base_auth.html' %}
+{% load static %}
+
+{% block title %}Register | ExpenseWise{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="min-height: 100vh; background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+  <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-lg border-0" style="border-radius: 15px;">
+        <!-- Card Header -->
+        <div class="card-header bg-white border-0 text-center py-4">
+          <img src="{% static 'tracker/images/logo.png' %}" alt="ExpenseWise Logo" class="mb-3" style="width: 80px;">
+          <h2 class="mb-0" style="color: #333; font-weight: 600;">Create Your Account</h2>
+          <p class="mt-2" style="color: #666;">Join ExpenseWise to manage your finances effortlessly.</p>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body p-4">
+          <!-- Messages -->
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <!-- Registration Form -->
+          <form method="POST">
+            {% csrf_token %}
+            
+            <!-- Username -->
+            <div class="mb-3">
+              <label for="username" class="form-label" style="font-weight: 500;">Username</label>
+              <input type="text" class="form-control form-control-lg" 
+                     name="username" id="username" placeholder="Enter username" required
+                     style="border-radius: 10px; border: 1px solid #ddd;">
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+              <label for="password" class="form-label" style="font-weight: 500;">Password</label>
+              <input type="password" class="form-control form-control-lg" 
+                     name="password" id="password" placeholder="Enter password" required
+                     style="border-radius: 10px; border: 1px solid #ddd;">
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-4">
+              <label for="password2" class="form-label" style="font-weight: 500;">Confirm Password</label>
+              <input type="password" class="form-control form-control-lg" 
+                     name="password2" id="password2" placeholder="Confirm password" required
+                     style="border-radius: 10px; border: 1px solid #ddd;">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-lg w-100" 
+                    style="border-radius: 10px; background-color: #0d6efd; border: none; font-weight: 500;">
+              Register Now
+            </button>
+          </form>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer bg-white border-0 text-center py-3">
+          <p class="mb-0" style="color: #666;">
+            Already have an account? 
+            <a href="{% url 'login' %}" class="text-decoration-none" style="color: #0d6efd; font-weight: 500;">Sign In</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

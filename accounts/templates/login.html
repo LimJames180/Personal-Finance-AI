@@ -1,18 +1,67 @@
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-    <h2>Login</h2>
-    {% for message in messages %}
-        <p style="color: red;">{{ message }}</p>
-    {% endfor %}
-    <form method="POST">
-        {% csrf_token %}
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
-    <a href="{% url 'register' %}">Don't have an account? Register</a>
-</body>
-</html>
+{% extends 'tracker/base_auth.html' %}
+{% load static %}
+
+{% block title %}Login | ExpenseWise{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="min-height: 100vh; background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+  <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-lg border-0" style="border-radius: 15px;">
+        <!-- Card Header -->
+        <div class="card-header bg-white border-0 text-center py-4">
+          <img src="{% static 'tracker/images/logo.png' %}" alt="ExpenseWise Logo" class="mb-3" style="width: 80px;">
+          <h2 class="mb-0" style="color: #333; font-weight: 600;">Welcome Back</h2>
+          <p class="mt-2" style="color: #666;">Login to manage your finances effortlessly.</p>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body p-4">
+          <!-- Messages -->
+          {% for message in messages %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          {% endfor %}
+
+          <!-- Login Form -->
+          <form method="POST" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <!-- Username -->
+            <div class="mb-3">
+              <label for="username" class="form-label" style="font-weight: 500;">Username</label>
+              <input type="text" class="form-control form-control-lg" 
+                     name="username" placeholder="Enter username" required
+                     style="border-radius: 10px; border: 1px solid #ddd;">
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+              <label for="password" class="form-label" style="font-weight: 500;">Password</label>
+              <input type="password" class="form-control form-control-lg" 
+                     name="password" placeholder="Enter password" required
+                     style="border-radius: 10px; border: 1px solid #ddd;">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-lg w-100" 
+                    style="border-radius: 10px; background-color: #0d6efd; border: none; font-weight: 500;">
+              Login
+            </button>
+          </form>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer bg-white border-0 text-center py-3">
+          <p class="mb-0" style="color: #666;">
+            Don’t have an account? 
+            <a href="{% url 'register' %}" class="text-decoration-none" style="color: #0d6efd; font-weight: 500;">Register</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
