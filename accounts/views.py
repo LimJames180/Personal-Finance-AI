@@ -42,7 +42,7 @@ def user_logout(request):
     return redirect("logged_out")
 
 def home(request):
-    return render(request, "home.html")
+    return render(request, "tracker/home.html")
 
 def logged_out(request):
     return render(request, "logged_out.html")
