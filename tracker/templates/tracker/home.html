@@ -39,8 +39,8 @@
         <div class="col-md-8">
             <div class="card bg-white shadow-sm">
                 <div class="card-body">
-                    <h6>Earnings Overview</h6>
-                    <canvas id="lineChart"></canvas>
+                    <h6>Spending Trend vs Budget</h6>
+                    <canvas id="monthlyTrendChart" height="120"></canvas>
                 </div>
             </div>
         </div>
@@ -54,4 +54,83 @@
         </div>
     </div>
 </div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctxMonthly = document.getElementById('monthlyTrendChart');
+    if (ctxMonthly) {
+        new Chart(ctxMonthly, {
+            type: 'line',
+            data: {
+                labels: ['Day 1', 'Day 5', 'Day 10', 'Day 15', 'Day 20', 'Day 25', 'Day 30'],
+                datasets: [
+                    {
+                        label: 'Cumulative Spending',
+                        data: [0, 100, 250, 400, 700, 850, 950],  // actual growing values
+                        borderColor: '#f87171',
+                        backgroundColor: '#f87171',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Monthly Budget',
+                        data: [1000, 1000, 1000, 1000, 1000, 1000, 1000], // flat reference line
+                        borderColor: '#60a5fa',
+                        backgroundColor: '#60a5fa',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: 1200
+                    }
+                }
+            }
+        });
+    }
+
+    const ctx2 = document.getElementById('pieChart');
+    if (ctx2) {
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    'Food', 'Housing', 'Transportation', 'Health', 'Entertainment',
+                    'Shopping', 'Bills', 'Travel', 'Education', 'Finance', 'Donations', 'Miscellaneous'
+                ],
+                datasets: [{
+                    data: [80, 120, 100, 60, 90, 70, 110, 40, 50, 30, 20, 35], // Dummy values
+                    backgroundColor: [
+                        '#60a5fa', '#facc15', '#f87171', '#34d399', '#c084fc',
+                        '#fbbf24', '#4ade80', '#38bdf8', '#818cf8', '#f472b6',
+                        '#fdba74', '#a78bfa'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+    });
+}
+</script>
+
 {% endblock %}
