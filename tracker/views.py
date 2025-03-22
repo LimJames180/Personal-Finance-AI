@@ -9,8 +9,8 @@ from .forms import TransactionForm
 
 @login_required
 def home(request):
-    total_spending = Transaction.objects.filter(user=request.user, transaction_type='expense').aggregate(total_spending=Sum('amount'))['total_spending'] or 0.00
-    total_earnings = Transaction.objects.filter(user=request.user, transaction_type='income').aggregate(total_earnings=Sum('amount'))['total_earnings'] or 0.00
+    total_spending = float(Transaction.objects.filter(user=request.user, transaction_type='expense').aggregate(total_spending=Sum('amount'))['total_spending'] or 0.00)
+    total_earnings = float(Transaction.objects.filter(user=request.user, transaction_type='income').aggregate(total_earnings=Sum('amount'))['total_earnings'] or 0.00)
     budget_left = total_earnings - total_spending
 
     # Fetch data for the charts
