@@ -1,0 +1,57 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2 class="mb-4">Welcome back 👋</h2>
+
+    <!-- Summary Cards -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card card-summary bg-white shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-secondary">Total Spending</h6>
+                    <h3 class="text-danger">€ 450.00</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-summary bg-white shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-secondary">Total Earnings</h6>
+                    <h3 class="text-success">€ 950.00</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-summary bg-white shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-secondary">Budget Left</h6>
+                    <h3 class="text-primary">€ 500.00</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mt-5">
+        <div class="col-md-8">
+            <div class="card bg-white shadow-sm">
+                <div class="card-body">
+                    <h6>Earnings Overview</h6>
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-white shadow-sm">
+                <div class="card-body">
+                    <h6>Spending Categories</h6>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
