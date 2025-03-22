@@ -10,4 +10,6 @@ urlpatterns = [
     path('analyze-text/', views.analyze_text, name='analyze_text'),
 
     path("debts/", debt_history, name="debt_history")
+
+
 ]

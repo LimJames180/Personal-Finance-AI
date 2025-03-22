@@ -328,3 +328,4 @@ def debt_history(request):
         'form': form,
     }
     return render(request, "tracker/debt_history.html", context)
+
