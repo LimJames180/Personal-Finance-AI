@@ -1,7 +1,16 @@
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+
 from django.contrib import messages
+
+
+def login_redirect(request):
+    if request.user.is_authenticated:
+        return redirect('tracker_home')  # Redirect to home if logged in
+    return redirect('login')  # Redirect to login page if not logged in
 
 def register(request):
     if request.method == "POST":
@@ -41,8 +50,10 @@ def user_logout(request):
     logout(request)
     return redirect("logged_out")
 
+@login_required
 def home(request):
     return render(request, "home.html")
+
 
 def logged_out(request):
     return render(request, "logged_out.html")
