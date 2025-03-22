@@ -18,11 +18,11 @@
         </div>
     </div>
 
-    <!-- Debt List -->
+    <!-- Debt List: Active Debts -->
     <div class="card bg-white shadow-sm mb-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title mb-0">Your Debts</h5>
+                <h5 class="card-title mb-0">Active Debts</h5>
                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addDebtModal">
                     <i class="bi bi-plus-circle"></i> Add New Debt
                 </button>
@@ -32,6 +32,7 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
+                            <th></th>  <!-- Empty header for delete button -->
                             <th>Debt Name</th>
                             <th>Creditor</th>
                             <th>Status</th>
@@ -40,17 +41,76 @@
                     </thead>
                     <tbody>
                         {% for debt in debts %}
-                        <tr>
-                            <td>{{ debt.debt_name }}</td>
-                            <td>{{ debt.creditor }}</td>
-                            <td>{% if debt.status %}Active{% else %}Paid Off{% endif %}</td>
-                            <td class="text-end">€ {{ debt.total_amount_owed }}</td>
-                        </tr>
+                            {% if debt.status %}
+                                <tr>
+                                    <td>
+                                        <!-- Delete Button -->
+                                        <form method="post" action="{% url 'delete_debt' debt.id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <td>{{ debt.debt_name }}</td>
+                                    <td>{{ debt.creditor }}</td>
+                                    <td><i class="bi bi-check-circle text-success"></i> Active</td>
+                                    <td class="text-end">€ {{ debt.total_amount_owed }}</td>
+                                </tr>
+                            {% endif %}
                         {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    No active debts recorded.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debt List: Paid Off Debts -->
+    <div class="card bg-white shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Paid Off Debts</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
                         <tr>
-                            <td colspan="4" class="text-center text-muted py-4">
-                                No debts recorded.
-                            </td>
+                            <th></th>  <!-- Empty header for delete button -->
+                            <th>Debt Name</th>
+                            <th>Creditor</th>
+                            <th>Status</th>
+                            <th class="text-end">Amount Owed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for debt in debts %}
+                            {% if not debt.status %}
+                                <tr>
+                                    <td>
+                                        <!-- Delete Button -->
+                                        <form method="post" action="{% url 'delete_debt' debt.id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <td>{{ debt.debt_name }}</td>
+                                    <td>{{ debt.creditor }}</td>
+                                    <td><i class="bi bi-check-circle text-success"></i> Paid Off</td>
+                                    <td class="text-end">€ {{ debt.total_amount_owed }}</td>
+                                </tr>
+                            {% endif %}
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    No paid off debts recorded.
+                                </td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -134,7 +194,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- Make sure Bootstrap JS and Popper.js are included -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

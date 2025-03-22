@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
+from django.shortcuts import get_object_or_404, redirect
 
 from django.db.models import Sum
 from django.shortcuts import render, redirect
@@ -360,3 +361,14 @@ def debt_history(request):
         'form': form,
     }
     return render(request, "tracker/debt_history.html", context)
+
+def delete_debt(request, debt_id):
+    debt = get_object_or_404(Debt, id=debt_id)
+    debt.delete()
+    return redirect('debt_history')
+def delete_transaction(request, transaction_id):
+    if request.method == 'POST':
+        transaction = get_object_or_404(Transaction, id=transaction_id)
+        transaction.delete()
+        return redirect('transaction_history')
+

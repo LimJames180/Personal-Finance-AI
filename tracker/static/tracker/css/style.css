@@ -1,47 +1,183 @@
-body {
-    background-color: #fefefe; /* eggshell white */
-    font-family: 'Segoe UI', sans-serif;
-}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Dashboard{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+  <style>
+    /* Add the updated CSS here */
+    /* Light Mode (Default) */
+    body {
+      background-color: #fefefe; /* eggshell white */
+      color: #000000;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-.card-summary {
-    border-radius: 16px;
-    transition: all 0.2s ease-in-out;
-}
+    .card-summary {
+      border-radius: 16px;
+      transition: all 0.2s ease-in-out;
+    }
 
-.card-summary:hover {
-    transform: scale(1.02);
-}
+    .card-summary:hover {
+      transform: scale(1.02);
+    }
 
-.card h6 {
-    font-weight: 600;
-}
+    .card h6 {
+      font-weight: 600;
+    }
 
-.card h3 {
-    font-size: 24px;
-}
+    .card h3 {
+      font-size: 24px;
+    }
 
-.dashboard-container {
-    padding: 20px;
-}
+    .dashboard-container {
+      padding: 20px;
+    }
 
-.text-primary {
-    color: #1e3a8a !important; /* dark blue */
-}
+    .text-primary {
+      color: #1e3a8a !important; /* dark blue */
+    }
 
-#sidebar {
-    background-color: #1e3a8a; /* dark blue */
-}
+    #sidebar {
+      background-color: #1e3a8a; /* dark blue */
+    }
 
-#sidebar .nav-link {
-    font-weight: 500;
-    transition: background 0.2s;
-}
+    #sidebar .nav-link {
+      font-weight: 500;
+      transition: background 0.2s;
+    }
 
-#sidebar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-}
+    #sidebar .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
 
-hr {
-    border-top: 1px solid rgba(255,255,255,0.2);
-}
+    hr {
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Dark Mode */
+    body.dark-mode {
+      background-color: #121212; /* dark background */
+      color: #ffffff; /* white text */
+    }
+
+    .dark-mode .card-summary {
+      background-color: #1e1e1e; /* dark card background */
+      border-color: #333; /* dark border */
+    }
+
+    .dark-mode .card-summary:hover {
+      background-color: #2d2d2d; /* slightly lighter on hover */
+    }
+
+    .dark-mode .card h6 {
+      color: #ffffff; /* white text */
+    }
+
+    .dark-mode .card h3 {
+      color: #ffffff; /* white text */
+    }
+
+    .dark-mode .dashboard-container {
+      background-color: #121212; /* dark background */
+    }
+
+    .dark-mode .text-primary {
+      color: #bb86fc !important; /* purple accent for dark mode */
+    }
+
+    .dark-mode #sidebar {
+      background-color: #1e1e1e; /* dark sidebar */
+    }
+
+    .dark-mode #sidebar .nav-link {
+      color: #ffffff; /* white text */
+    }
+
+    .dark-mode #sidebar .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.1); /* light hover effect */
+    }
+
+    .dark-mode hr {
+      border-top: 1px solid rgba(255, 255, 255, 0.1); /* lighter border */
+    }
+  </style>
+</head>
+<body>
+  <div class="d-flex">
+    {% include 'tracker/navbar.html' %}
+    <main class="flex-fill p-4" style="background-color: #fefefe;">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script>
+    // Theme Settings
+    const lightModeButton = document.getElementById('light-mode');
+    const darkModeButton = document.getElementById('dark-mode');
+
+    // Apply saved theme on page load
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+
+    // Light Mode Button
+    lightModeButton.addEventListener('click', function () {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('theme', 'light');
+    });
+
+    // Dark Mode Button
+    darkModeButton.addEventListener('click', function () {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark');
+    });
+  </script>
+</body>
+</html>
+
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Dashboard{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+</head>
+<body>
+  <div class="d-flex">
+    {% include 'tracker/navbar.html' %}
+    <main class="flex-fill p-4" style="background-color: #fefefe;">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <!-- Add JavaScript Here -->
+  <script>
+    // Theme Toggle Switch
+    const themeToggle = document.getElementById('theme-toggle');
+
+    // Apply saved theme on page load
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+      themeToggle.checked = true;
+    }
+
+    // Toggle Theme
+    themeToggle.addEventListener('change', function () {
+      if (this.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,4 +1,3 @@
-<!-- summary.html -->
 {% extends 'tracker/base.html' %}
 {% load static %}
 
@@ -6,5 +5,169 @@
 
 {% block content %}
 <div class="container">
+  <h1 class="mb-4">Settings</h1>
+
+  <!-- Account Settings -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">Account Settings</h5>
+  </div>
+  <div class="card-body">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">
+        <a href="{% url 'change_password' %}" class="text-decoration-none">Change Password</a>
+      </li>
+      <li class="list-group-item">
+        <a href="{% url 'change_username' %}" class="text-decoration-none">Change Username</a>
+      </li>
+    </ul>
+  </div>
 </div>
+
+  <!-- App Customization -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">App Customization</h5>
+    </div>
+    <div class="card-body">
+      <!-- Theme Settings -->
+      <div class="mb-3">
+        <label class="form-label">Theme</label>
+        <div>
+          <button id="light-mode" class="btn btn-outline-secondary">Light Mode</button>
+          <button id="dark-mode" class="btn btn-outline-secondary">Dark Mode</button>
+        </div>
+      </div>
+
+      <!-- Font Size Settings -->
+      <div class="mb-3">
+        <label class="form-label">Font Size</label>
+        <div>
+          <button id="small-font" class="btn btn-outline-secondary">Small</button>
+          <button id="medium-font" class="btn btn-outline-secondary">Medium</button>
+          <button id="large-font" class="btn btn-outline-secondary">Large</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout Button -->
+  <div class="text-center">
+    <a href="{% url 'login' %}" class="btn btn-danger">Log Out</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+  .card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    padding: 12px 16px;
+  }
+
+  .card-body {
+    padding: 16px;
+  }
+
+  .list-group-item {
+    border: none;
+    padding: 8px 0;
+  }
+
+  .list-group-item a {
+    color: #007bff;
+  }
+
+  .list-group-item a:hover {
+    text-decoration: underline;
+  }
+
+  .btn-danger {
+    margin-top: 20px;
+  }
+
+  /* Dark Mode Styles */
+  body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+  }
+
+  .dark-mode .card {
+    background-color: #1e1e1e;
+    border-color: #333;
+  }
+
+  .dark-mode .card-header {
+    background-color: #2d2d2d;
+    border-color: #333;
+  }
+
+  .dark-mode .list-group-item a {
+    color: #bb86fc;
+  }
+
+  .dark-mode .btn-outline-secondary {
+    border-color: #333;
+    color: #ffffff;
+  }
+
+  .dark-mode .btn-outline-secondary:hover {
+    background-color: #333;
+    color: #ffffff;
+  }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Theme Settings
+  document.getElementById('light-mode').addEventListener('click', function () {
+    document.body.classList.remove('dark-mode');
+    localStorage.setItem('theme', 'light');
+  });
+
+  document.getElementById('dark-mode').addEventListener('click', function () {
+    document.body.classList.add('dark-mode');
+    localStorage.setItem('theme', 'dark');
+  });
+
+  // Apply saved theme on page load
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+  }
+
+  // Font Size Settings
+  document.getElementById('small-font').addEventListener('click', function () {
+    document.body.style.fontSize = '14px';
+    localStorage.setItem('fontSize', 'small');
+  });
+
+  document.getElementById('medium-font').addEventListener('click', function () {
+    document.body.style.fontSize = '16px';
+    localStorage.setItem('fontSize', 'medium');
+  });
+
+  document.getElementById('large-font').addEventListener('click', function () {
+    document.body.style.fontSize = '18px';
+    localStorage.setItem('fontSize', 'large');
+  });
+
+  // Apply saved font size on page load
+  const savedFontSize = localStorage.getItem('fontSize');
+  if (savedFontSize === 'small') {
+    document.body.style.fontSize = '14px';
+  } else if (savedFontSize === 'medium') {
+    document.body.style.fontSize = '16px';
+  } else if (savedFontSize === 'large') {
+    document.body.style.fontSize = '18px';
+  }
+</script>
 {% endblock %}
