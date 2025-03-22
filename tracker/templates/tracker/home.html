@@ -55,18 +55,21 @@
     </div>
 </div>
 
+<!-- Add Chart.js script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
+    // Line Chart
     const ctxMonthly = document.getElementById('spendingIncomeChart');
     if (ctxMonthly) {
         new Chart(ctxMonthly, {
             type: 'line',
             data: {
-                labels: {{ months|safe }},
+                labels: {{ months|safe }},  // Days of the month
                 datasets: [
                     {
-                        label: 'Spending',
-                        data: {{ expense_data|safe }},
+                        label: 'Cumulative Spending',
+                        data: {{ expense_data|safe }},  // Cumulative spending data
                         borderColor: '#f87171',
                         backgroundColor: '#f87171',
                         borderWidth: 2,
@@ -74,8 +77,8 @@
                         tension: 0.3
                     },
                     {
-                        label: 'Income',
-                        data: {{ income_data|safe }},
+                        label: 'Cumulative Income',
+                        data: {{ income_data|safe }},  // Cumulative income data
                         borderColor: '#34d399',
                         backgroundColor: '#34d399',
                         borderWidth: 2,
@@ -94,7 +97,33 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        suggestedMax: 1200
+                        suggestedMax: Math.max(...{{ expense_data|safe }}, ...{{ income_data|safe }}) + 100
+                    }
+                }
+            }
+        });
+    }
+
+    // Pie Chart
+    const ctxPie = document.getElementById('pieChart');
+    if (ctxPie) {
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: {{ pie_labels|safe }},  // Categories
+                datasets: [{
+                    data: {{ pie_data|safe }},  // Spending amounts
+                    backgroundColor: [
+                        '#f87171', '#34d399', '#60a5fa', '#fbbf24', '#a78bfa'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
                     }
                 }
             }

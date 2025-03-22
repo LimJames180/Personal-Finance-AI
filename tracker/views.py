@@ -1,57 +1,108 @@
 from datetime import datetime, timedelta
-
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Transaction
 from .forms import TransactionForm
 
-
 # Home view
-@login_required
-def home(request):
-    total_spending = float(Transaction.objects.filter(user=request.user, transaction_type='expense').aggregate(
-        total_spending=Sum('amount'))['total_spending'] or 0.00)
-    total_earnings = float(Transaction.objects.filter(user=request.user, transaction_type='income').aggregate(
-        total_earnings=Sum('amount'))['total_earnings'] or 0.00)
-    budget_left = total_earnings - total_spending
+from datetime import datetime, timedelta
+from django.db.models import Sum
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Transaction
+from decimal import Decimal
 
-    # Fetch data for the charts
-    spending_data = list(
-        Transaction.objects.filter(user=request.user, transaction_type='expense').values_list('amount', flat=True))
-    earnings_data = list(
-        Transaction.objects.filter(user=request.user, transaction_type='income').values_list('amount', flat=True))
-
-    context = {
-        'total_spending': total_spending,
-        'total_earnings': total_earnings,
-        'budget_left': budget_left,
-        'spending_data': spending_data,
-        'earnings_data': earnings_data,
-    }
-    return render(request, 'tracker/home.html', context)
+from datetime import datetime, timedelta
+from django.db.models import Sum
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Transaction
+from .forms import TransactionForm
+from decimal import Decimal
 
 
-# Transaction history view
 @login_required
 def transaction_history(request):
+    if request.method == "POST":
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            transaction = form.save(commit=False)
+            transaction.user = request.user  # Assign the logged-in user
+            transaction.save()  # Save the transaction to the database
+            return redirect("transaction_history")  # Redirect to refresh the page
+    else:
+        form = TransactionForm()
+
+    # Fetch and display recent transactions
     current_date = datetime.now()
     start_date = current_date - timedelta(days=30)
 
-    total_expenses = float(Transaction.objects.filter(
+    # Fetch all transactions for the logged-in user in the last 30 days
+    transactions = Transaction.objects.filter(
         user=request.user,
-        transaction_type='expense',
         date__range=[start_date, current_date]
-    ).aggregate(total_expenses=Sum('amount'))['total_expenses'] or 0.00)
+    ).order_by("date")
 
-    total_income = float(Transaction.objects.filter(
-        user=request.user,
-        transaction_type='income',
-        date__range=[start_date, current_date]
-    ).aggregate(total_income=Sum('amount'))['total_income'] or 0.00)
+    # Debugging: Print all transactions
+    print("All Transactions (Last 30 Days):")
+    for transaction in transactions:
+        print(f"ID: {transaction.id}, Date: {transaction.date}, Type: {transaction.transaction_type}, Amount: {transaction.amount}, Category: {transaction.category}")
 
+    # Initialize data structures
+    daily_spending = {}
+    daily_income = {}
+    labels = []  # Days of the last 30 days
+
+    # Initialize daily spending and income to 0 for each day of the last 30 days
+    current_day = start_date
+    while current_day <= current_date:
+        day_str = current_day.strftime("%Y-%m-%d")
+        daily_spending[day_str] = Decimal('0.00')
+        daily_income[day_str] = Decimal('0.00')
+        labels.append(current_day.strftime("%d %b"))  # Format: "01 May", "02 May", etc.
+        current_day += timedelta(days=1)
+
+    # Debugging: Print initialized daily_spending and daily_income
+    print("Initialized Daily Spending (Last 30 Days):", daily_spending)
+    print("Initialized Daily Income (Last 30 Days):", daily_income)
+
+    # Populate daily spending and income
+    for transaction in transactions:
+        day_str = transaction.date.strftime("%Y-%m-%d")
+        if transaction.transaction_type == 'expense':
+            daily_spending[day_str] += transaction.amount
+        elif transaction.transaction_type == 'income':
+            daily_income[day_str] += transaction.amount
+
+    # Debugging: Print populated daily_spending and daily_income
+    print("Populated Daily Spending (Last 30 Days):", daily_spending)
+    print("Populated Daily Income (Last 30 Days):", daily_income)
+
+    # Calculate cumulative spending and income
+    cumulative_spending = []
+    cumulative_income = []
+    total_spending = Decimal('0.00')
+    total_income = Decimal('0.00')
+    for day in labels:
+        day_with_year = f"{day} {current_date.year}"  # Example: "01 May 2023"
+        day_str = datetime.strptime(day_with_year, "%d %b %Y").strftime("%Y-%m-%d")
+        print(f"Day: {day}, Day with Year: {day_with_year}, Day String: {day_str}")
+        total_spending += daily_spending.get(day_str, Decimal('0.00'))
+        total_income += daily_income.get(day_str, Decimal('0.00'))
+        cumulative_spending.append(float(total_spending))  # Convert to float for Chart.js
+        cumulative_income.append(float(total_income))  # Convert to float for Chart.js
+
+    # Debugging: Print cumulative spending and income
+    print("Cumulative Spending (Last 30 Days):", cumulative_spending)
+    print("Cumulative Income (Last 30 Days):", cumulative_income)
+
+    # Calculate total expenses and income for the last 30 days
+    total_expenses = float(total_spending)
+    total_income = float(total_income)
     net_balance = total_income - total_expenses
 
+    # Fetch recent and past transactions
     recent_transactions = Transaction.objects.filter(
         user=request.user,
         date__range=[start_date, current_date]
@@ -62,16 +113,16 @@ def transaction_history(request):
         date__lt=start_date
     ).order_by("-date")
 
-    if request.method == "POST":
-        form = TransactionForm(request.POST)
-        if form.is_valid():
-            transaction = form.save(commit=False)
-            transaction.user = request.user
-            transaction.save()
-            return redirect("transaction_history")
-    else:
-        form = TransactionForm()
+    # Debugging: Print recent and past transactions
+    print("Recent Transactions:")
+    for transaction in recent_transactions:
+        print(f"ID: {transaction.id}, Date: {transaction.date}, Type: {transaction.transaction_type}, Amount: {transaction.amount}")
 
+    print("Past Transactions:")
+    for transaction in past_transactions:
+        print(f"ID: {transaction.id}, Date: {transaction.date}, Type: {transaction.transaction_type}, Amount: {transaction.amount}")
+
+    # Pass data to the template
     context = {
         'total_expenses': total_expenses,
         'total_income': total_income,
@@ -79,11 +130,106 @@ def transaction_history(request):
         'recent_transactions': recent_transactions,
         'past_transactions': past_transactions,
         'form': form,
+        'daily_spending': daily_spending,  # Daily spending data
+        'daily_income': daily_income,  # Daily income data
+        'labels': labels,  # Days of the last 30 days
+        'cumulative_spending': cumulative_spending,  # Cumulative spending data
+        'cumulative_income': cumulative_income,  # Cumulative income data
     }
     return render(request, "tracker/transaction_history.html", context)
+@login_required
+def home(request):
+    # Get the current date and the first day of the current month
+    today = datetime.now()
+    first_day_of_month = today.replace(day=1)
 
+    # Fetch all transactions for the logged-in user in the current month
+    transactions = Transaction.objects.filter(
+        user=request.user,
+        date__gte=first_day_of_month,  # Transactions from the first day of the month
+        date__lte=today  # Transactions up to today
+    ).order_by("date")
 
-# Summary view
+    # Debugging: Print all transactions
+    print("All Transactions (Current Month):")
+    for transaction in transactions:
+        print(f"ID: {transaction.id}, Date: {transaction.date}, Type: {transaction.transaction_type}, Amount: {transaction.amount}, Category: {transaction.category}")
+
+    # Initialize data structures
+    daily_spending = {}
+    daily_income = {}
+    cumulative_spending = []
+    cumulative_income = []
+    labels = []  # Days of the month
+
+    # Initialize daily spending and income to 0 for each day of the month
+    current_day = first_day_of_month
+    while current_day <= today:
+        day_str = current_day.strftime("%Y-%m-%d")
+        daily_spending[day_str] = Decimal('0.00')
+        daily_income[day_str] = Decimal('0.00')
+        labels.append(current_day.strftime("%d %b"))  # Format: "01 May", "02 May", etc.
+        current_day += timedelta(days=1)
+
+    # Debugging: Print initialized daily_spending and daily_income
+    print("Initialized Daily Spending (Current Month):", daily_spending)
+    print("Initialized Daily Income (Current Month):", daily_income)
+
+    # Populate daily spending and income
+    for transaction in transactions:
+        day_str = transaction.date.strftime("%Y-%m-%d")
+        if transaction.transaction_type == 'expense':
+            daily_spending[day_str] += transaction.amount
+        elif transaction.transaction_type == 'income':
+            daily_income[day_str] += transaction.amount
+
+    # Debugging: Print populated daily_spending and daily_income
+    print("Populated Daily Spending (Current Month):", daily_spending)
+    print("Populated Daily Income (Current Month):", daily_income)
+
+    # Calculate cumulative spending and income
+    total_spending = Decimal('0.00')
+    total_income = Decimal('0.00')
+    for day in labels:
+        day_with_year = f"{day} {today.year}"  # Example: "01 May 2023"
+        day_str = datetime.strptime(day_with_year, "%d %b %Y").strftime("%Y-%m-%d")
+        print(f"Day: {day}, Day with Year: {day_with_year}, Day String: {day_str}")
+        total_spending += daily_spending.get(day_str, Decimal('0.00'))
+        total_income += daily_income.get(day_str, Decimal('0.00'))
+        cumulative_spending.append(float(total_spending))  # Convert to float for Chart.js
+        cumulative_income.append(float(total_income))  # Convert to float for Chart.js
+
+    # Debugging: Print cumulative spending and income
+    print("Cumulative Spending (Current Month):", cumulative_spending)
+    print("Cumulative Income (Current Month):", cumulative_income)
+
+    # Calculate spending by category for the pie chart
+    spending_by_category = Transaction.objects.filter(
+        user=request.user,
+        transaction_type='expense',
+        date__gte=first_day_of_month,
+        date__lte=today
+    ).values('category').annotate(total=Sum('amount')).order_by('-total')
+
+    pie_labels = [item['category'] for item in spending_by_category]
+    pie_data = [float(item['total']) for item in spending_by_category]
+
+    # Debugging: Print pie chart data
+    print("Pie Labels (Categories):", pie_labels)
+    print("Pie Data (Spending by Category):", pie_data)
+
+    # Pass data to the template
+    context = {
+        'total_spending': total_spending,
+        'total_earnings': total_income,
+        'budget_left': total_income - total_spending,
+        'months': labels,  # Days of the month (e.g., "01 May", "02 May")
+        'expense_data': cumulative_spending,  # Cumulative spending data
+        'income_data': cumulative_income,  # Cumulative income data
+        'pie_labels': pie_labels,  # Categories for the pie chart
+        'pie_data': pie_data,  # Spending amounts for the pie chart
+    }
+    return render(request, 'tracker/home.html', context)
 @login_required
 def summary(request):
     # Fetch all transactions for the logged-in user
@@ -104,45 +250,8 @@ def summary(request):
     }
     return render(request, "tracker/summary.html", context)
 
-
 # Settings view
 @login_required
 def settings(request):
     # Placeholder for settings page
     return render(request, "tracker/settings.html")
-
-
-def dashboard_view(request):
-    user = request.user
-
-    # Query transactions for this user, grouped by date (or month)
-    transactions = Transaction.objects.filter(user=user)
-
-    # Prepare data for the graph (aggregated by day)
-    spending_data = defaultdict(float)
-    income_data = defaultdict(float)
-
-    for transaction in transactions:
-        date = transaction.date
-        if transaction.transaction_type == 'expense':
-            spending_data[date] += transaction.amount
-        elif transaction.transaction_type == 'income':
-            income_data[date] += transaction.amount
-
-    # Prepare the data for the line graph
-    dates = sorted(set(spending_data.keys()).union(set(income_data.keys())))
-    expense_values = [spending_data.get(date, 0) for date in dates]
-    income_values = [income_data.get(date, 0) for date in dates]
-
-    # Format dates for the chart labels
-    date_labels = [date.strftime('%b %d') for date in dates]
-
-    context = {
-        'total_spending': sum(expense_values),
-        'total_earnings': sum(income_values),
-        'budget_left': 1000 - sum(expense_values),  # Example: subtract spending from budget
-        'expense_data': expense_values,
-        'income_data': income_values,
-        'months': date_labels,
-    }
-    return render(request, 'tracker/home.html', context)
