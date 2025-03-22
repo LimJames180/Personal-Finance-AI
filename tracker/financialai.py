@@ -1,9 +1,11 @@
 # ! pip install -U cohere
+import os
+
 import cohere
 from tracker.models import Transaction  # Use absolute import
-
+api_key = os.getenv('COHERE_API_KEY')
 co = cohere.ClientV2(
-    "PsBGvA6WDoOENgFzPPnL7OI5QLQDWoHRAxuHiR11"
+    api_key
 )  # Get your free API key here: https://dashboard.cohere.com/api-keys
 
 
