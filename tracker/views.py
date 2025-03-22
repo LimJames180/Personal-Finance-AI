@@ -1,9 +1,15 @@
+from collections import defaultdict
 from datetime import datetime, timedelta
+
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Transaction
-from .forms import TransactionForm
+from .models import Transaction,Debt
+from .forms import TransactionForm,DebtForm
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .aitransaction import aitransaction
 
 # Home view
 from datetime import datetime, timedelta
@@ -12,15 +18,6 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Transaction
 from decimal import Decimal
-
-from datetime import datetime, timedelta
-from django.db.models import Sum
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .models import Transaction
-from .forms import TransactionForm
-from decimal import Decimal
-
 
 @login_required
 def transaction_history(request):
@@ -113,10 +110,20 @@ def transaction_history(request):
         date__lt=start_date
     ).order_by("-date")
 
-    # Debugging: Print recent and past transactions
-    print("Recent Transactions:")
-    for transaction in recent_transactions:
-        print(f"ID: {transaction.id}, Date: {transaction.date}, Type: {transaction.transaction_type}, Amount: {transaction.amount}")
+    if request.method == "POST":
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            transaction = form.save(commit=False)
+            transaction.user = request.user
+            transaction.save()
+            return redirect("transaction_history")
+        elif 'chat_text' in request.POST:
+            chat_text = request.POST.get('chat_text')
+            # Call your function with the chat text
+            handle_chat_text(chat_text)
+            return redirect("transaction_history")
+    else:
+        form = TransactionForm()
 
     print("Past Transactions:")
     for transaction in past_transactions:
@@ -170,10 +177,6 @@ def home(request):
         daily_income[day_str] = Decimal('0.00')
         labels.append(current_day.strftime("%d %b"))  # Format: "01 May", "02 May", etc.
         current_day += timedelta(days=1)
-
-    # Debugging: Print initialized daily_spending and daily_income
-    print("Initialized Daily Spending (Current Month):", daily_spending)
-    print("Initialized Daily Income (Current Month):", daily_income)
 
     # Populate daily spending and income
     for transaction in transactions:
@@ -230,6 +233,12 @@ def home(request):
         'pie_data': pie_data,  # Spending amounts for the pie chart
     }
     return render(request, 'tracker/home.html', context)
+
+def handle_chat_text(chat_text):
+    # Your function to handle the chat text
+    print(f"Chat text received: {chat_text}")
+
+
 @login_required
 def summary(request):
     # Fetch all transactions for the logged-in user
@@ -250,8 +259,76 @@ def summary(request):
     }
     return render(request, "tracker/summary.html", context)
 
+
 # Settings view
+
 @login_required
 def settings(request):
     # Placeholder for settings page
     return render(request, "tracker/settings.html")
+
+
+def dashboard_view(request):
+    user = request.user
+
+    # Query transactions for this user, grouped by date (or month)
+    transactions = Transaction.objects.filter(user=user)
+
+    # Prepare data for the graph (aggregated by day)
+    spending_data = defaultdict(float)
+    income_data = defaultdict(float)
+
+    for transaction in transactions:
+        date = transaction.date
+        if transaction.transaction_type == 'expense':
+            spending_data[date] += transaction.amount
+        elif transaction.transaction_type == 'income':
+            income_data[date] += transaction.amount
+
+    # Prepare the data for the line graph
+    dates = sorted(set(spending_data.keys()).union(set(income_data.keys())))
+    expense_values = [spending_data.get(date, 0) for date in dates]
+    income_values = [income_data.get(date, 0) for date in dates]
+
+    # Format dates for the chart labels
+    date_labels = [date.strftime('%b %d') for date in dates]
+
+    context = {
+        'total_spending': sum(expense_values),
+        'total_earnings': sum(income_values),
+        'budget_left': 1000 - sum(expense_values),  # Example: subtract spending from budget
+        'expense_data': expense_values,
+        'income_data': income_values,
+        'months': date_labels,
+    }
+    return render(request, 'tracker/home.html', context)
+
+
+@csrf_exempt
+def analyze_text(request):
+    if request.method == 'POST':
+        text = request.POST.get('text')
+        if text:
+            result = aitransaction(text)
+            return JsonResponse(result)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def debt_history(request):
+    # Fetch all debts related to the logged-in user
+    debts = Debt.objects.filter(user=request.user)
+
+    if request.method == "POST":
+        form = DebtForm(request.POST)
+        if form.is_valid():
+            debt = form.save(commit=False)
+            debt.user = request.user
+            debt.save()
+            return redirect("debt_history")
+    else:
+        form = DebtForm()
+
+    context = {
+        'debts': debts,
+        'form': form,
+    }
+    return render(request, "tracker/debt_history.html", context)
