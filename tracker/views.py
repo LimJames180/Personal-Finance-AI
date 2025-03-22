@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -33,7 +35,32 @@ def home(request):
 # Transaction history view
 @login_required
 def transaction_history(request):
-    transactions = Transaction.objects.filter(user=request.user).order_by("-date")
+    current_date = datetime.now()
+    start_date = current_date - timedelta(days=30)
+
+    total_expenses = float(Transaction.objects.filter(
+        user=request.user,
+        transaction_type='expense',
+        date__range=[start_date, current_date]
+    ).aggregate(total_expenses=Sum('amount'))['total_expenses'] or 0.00)
+
+    total_income = float(Transaction.objects.filter(
+        user=request.user,
+        transaction_type='income',
+        date__range=[start_date, current_date]
+    ).aggregate(total_income=Sum('amount'))['total_income'] or 0.00)
+
+    net_balance = total_income - total_expenses
+
+    recent_transactions = Transaction.objects.filter(
+        user=request.user,
+        date__range=[start_date, current_date]
+    ).order_by("-date")
+
+    past_transactions = Transaction.objects.filter(
+        user=request.user,
+        date__lt=start_date
+    ).order_by("-date")
 
     if request.method == "POST":
         form = TransactionForm(request.POST)
@@ -45,7 +72,15 @@ def transaction_history(request):
     else:
         form = TransactionForm()
 
-    return render(request, "tracker/transaction_history.html", {"transactions": transactions, "form": form})
+    context = {
+        'total_expenses': total_expenses,
+        'total_income': total_income,
+        'net_balance': net_balance,
+        'recent_transactions': recent_transactions,
+        'past_transactions': past_transactions,
+        'form': form,
+    }
+    return render(request, "tracker/transaction_history.html", context)
 
 
 # Summary view
