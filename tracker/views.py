@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 from django.db.models import Sum
@@ -6,6 +7,10 @@ from django.contrib.auth.decorators import login_required
 from .models import Transaction
 from .forms import TransactionForm
 
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .aitransaction import aitransaction
 
 # Home view
 @login_required
@@ -69,6 +74,11 @@ def transaction_history(request):
             transaction.user = request.user
             transaction.save()
             return redirect("transaction_history")
+        elif 'chat_text' in request.POST:
+            chat_text = request.POST.get('chat_text')
+            # Call your function with the chat text
+            handle_chat_text(chat_text)
+            return redirect("transaction_history")
     else:
         form = TransactionForm()
 
@@ -81,6 +91,10 @@ def transaction_history(request):
         'form': form,
     }
     return render(request, "tracker/transaction_history.html", context)
+
+def handle_chat_text(chat_text):
+    # Your function to handle the chat text
+    print(f"Chat text received: {chat_text}")
 
 
 # Summary view
@@ -146,3 +160,13 @@ def dashboard_view(request):
         'months': date_labels,
     }
     return render(request, 'tracker/home.html', context)
+
+
+@csrf_exempt
+def analyze_text(request):
+    if request.method == 'POST':
+        text = request.POST.get('text')
+        if text:
+            result = aitransaction(text)
+            return JsonResponse(result)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
