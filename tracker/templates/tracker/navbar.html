@@ -5,7 +5,10 @@
         <li class="nav-item mb-2"><a class="nav-link text-white" href="#">🏠 Dashboard</a></li>
         <li class="nav-item mb-2"><a class="nav-link text-white" href="#">🧾 Expenses</a></li>
         <li class="nav-item mb-2"><a class="nav-link text-white" href="#">💰 Income</a></li>
-        <li class="nav-item mb-2"><a class="nav-link text-white" href="#">💸 Transactions</a></li>
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white" href="{% url 'transaction_history' %}">💸 Transactions</a>
+        </li>
+        
         <li class="nav-item mb-2"><a class="nav-link text-white" href="#">📈 Forecast</a></li>
         <hr class="bg-light">
         <li class="nav-item mb-2"><a class="nav-link text-white" href="#">📊 Summary</a></li>

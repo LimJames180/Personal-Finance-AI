@@ -1,3 +1,11 @@
-pycache/
+# Ignore Python cache
+__pycache__/
 *.pyc
 *.pyo
+*.pyd
+
+# Ignore database file
+db.sqlite3
+
+# Ignore macOS system file
+.DS_Store
