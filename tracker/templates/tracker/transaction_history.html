@@ -1,0 +1,31 @@
+
+{% block content %}
+<h2>Transaction History</h2>
+
+<table border="1">
+    <tr>
+        <th>Amount</th>
+        <th>Category</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Type</th>
+    </tr>
+    {% for transaction in transactions %}
+    <tr>
+        <td>${{ transaction.amount }}</td>
+        <td>{{ transaction.category }}</td>
+        <td>{{ transaction.date }}</td>
+        <td>{{ transaction.description }}</td>
+        <td>{{ transaction.transaction_type }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Add a New Transaction</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Transaction</button>
+</form>
+
+{% endblock %}
