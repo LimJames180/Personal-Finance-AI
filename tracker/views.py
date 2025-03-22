@@ -11,13 +11,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .aitransaction import aitransaction
 
-# Home view
-from datetime import datetime, timedelta
-from django.db.models import Sum
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Transaction
-from decimal import Decimal
 
 from datetime import datetime, timedelta
 from django.db.models import Sum
@@ -243,7 +236,7 @@ def handle_chat_text(chat_text):
 
 
 @login_required
-def summary(request):
+def advisor(request):
     # Fetch all transactions for the logged-in user
     transactions = Transaction.objects.filter(user=request.user).order_by("-date")
 
@@ -260,7 +253,7 @@ def summary(request):
         'total_earnings': total_earnings,
         'budget_left': budget_left,
     }
-    return render(request, "tracker/summary.html", context)
+    return render(request, "tracker/advisor.html", context)
 
 
 # Settings view

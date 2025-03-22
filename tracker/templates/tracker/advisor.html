@@ -1,0 +1,207 @@
+{% extends 'tracker/base.html' %}
+{% load static %}
+
+{% block title %}AI Advisor | ExpenseWise{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <!-- Chat Interface -->
+    <div class="col-md-8 p-4">
+      <div class="chat-container">
+        <!-- Chat Header -->
+        <div class="chat-header text-center p-3">
+          <h2>Financial AI Advisor</h2>
+          <p class="text-muted">Your personal guide to financial wisdom.</p>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages p-3" id="chat-messages">
+          <!-- Example AI Message with Typing Animation -->
+          <div class="message ai-message">
+            <div class="message-content">
+              <p class="typing-animation">Hello! I'm your financial AI advisor. How can I help you today?</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input p-3 bg-light">
+          <form id="chat-form">
+            <div class="input-group">
+              <input type="text" id="chat-input" class="form-control" placeholder="Type your message..." required>
+              <button type="submit" class="btn btn-primary">Send</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+  /* Chat Container */
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Chat Header */
+  .chat-header {
+    background-color: #007bff;
+    color: white;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .chat-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .chat-header p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  /* Chat Messages */
+  .chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background-color: #f9f9f9;
+  }
+
+  /* Message Bubbles */
+  .message {
+    margin-bottom: 15px;
+    display: flex;
+  }
+
+  .message-content {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 12px;
+    position: relative;
+  }
+
+  .ai-message .message-content {
+    background-color: #e1f5fe;
+    margin-right: auto;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .user-message .message-content {
+    background-color: #007bff;
+    color: white;
+    margin-left: auto;
+    animation: slideIn 0.5s ease-in-out;
+  }
+
+  /* Typing Animation */
+  .typing-animation {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 2s steps(40, end);
+  }
+
+  /* Animations */
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Chat Input */
+  .chat-input {
+    border-top: 1px solid #ddd;
+    background-color: #fff;
+  }
+
+  .input-group {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .form-control {
+    border: none;
+    box-shadow: none;
+  }
+
+  .btn-primary {
+    border-radius: 0 8px 8px 0;
+  }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Handle chat form submission
+  document.getElementById('chat-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Get user input
+    const input = document.getElementById('chat-input');
+    const userMessage = input.value.trim();
+
+    if (userMessage) {
+      // Add user message to chat
+      addMessage(userMessage, 'user');
+
+      // Clear input
+      input.value = '';
+
+      // Simulate AI response (replace with actual API call)
+      setTimeout(() => {
+        const aiResponse = "This is a simulated AI response. Replace this with an actual API call.";
+        addMessage(aiResponse, 'ai', true); // Add typing animation for AI response
+      }, 1000);
+    }
+  });
+
+  // Function to add a message to the chat
+  function addMessage(text, sender, isTyping = false) {
+    const chatMessages = document.getElementById('chat-messages');
+
+    // Create message element
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message', `${sender}-message`);
+
+    const contentDiv = document.createElement('div');
+    contentDiv.classList.add('message-content');
+
+    if (isTyping) {
+      const typingDiv = document.createElement('div');
+      typingDiv.classList.add('typing-animation');
+      typingDiv.innerText = text;
+      contentDiv.appendChild(typingDiv);
+    } else {
+      contentDiv.innerHTML = `<p>${text}</p>`;
+    }
+
+    messageDiv.appendChild(contentDiv);
+    chatMessages.appendChild(messageDiv);
+
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+</script>
+{% endblock %}
