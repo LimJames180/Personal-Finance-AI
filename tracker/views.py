@@ -19,6 +19,15 @@ from django.contrib.auth.decorators import login_required
 from .models import Transaction
 from decimal import Decimal
 
+from datetime import datetime, timedelta
+from django.db.models import Sum
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Transaction
+from .forms import TransactionForm
+from decimal import Decimal
+
+
 @login_required
 def transaction_history(request):
     if request.method == "POST":
@@ -110,20 +119,10 @@ def transaction_history(request):
         date__lt=start_date
     ).order_by("-date")
 
-    if request.method == "POST":
-        form = TransactionForm(request.POST)
-        if form.is_valid():
-            transaction = form.save(commit=False)
-            transaction.user = request.user
-            transaction.save()
-            return redirect("transaction_history")
-        elif 'chat_text' in request.POST:
-            chat_text = request.POST.get('chat_text')
-            # Call your function with the chat text
-            handle_chat_text(chat_text)
-            return redirect("transaction_history")
-    else:
-        form = TransactionForm()
+    # Debugging: Print recent and past transactions
+    print("Recent Transactions:")
+    for transaction in recent_transactions:
+        print(f"ID: {transaction.id}, Date: {transaction.date}, Type: {transaction.transaction_type}, Amount: {transaction.amount}")
 
     print("Past Transactions:")
     for transaction in past_transactions:
@@ -177,6 +176,10 @@ def home(request):
         daily_income[day_str] = Decimal('0.00')
         labels.append(current_day.strftime("%d %b"))  # Format: "01 May", "02 May", etc.
         current_day += timedelta(days=1)
+
+    # Debugging: Print initialized daily_spending and daily_income
+    print("Initialized Daily Spending (Current Month):", daily_spending)
+    print("Initialized Daily Income (Current Month):", daily_income)
 
     # Populate daily spending and income
     for transaction in transactions:
