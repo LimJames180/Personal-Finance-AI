@@ -34,16 +34,16 @@
         </div>
     </div>
 
-    <!-- Transaction List -->
+    <!-- Recent Transactions -->
     <div class="card bg-white shadow-sm mb-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title mb-0">Recent Transactions</h5>
+                <h5 class="card-title mb-0">Recent Transactions (Last 30 Days)</h5>
                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
                     <i class="bi bi-plus-circle"></i> Add New
                 </button>
             </div>
-            
+
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead class="table-light">
@@ -55,7 +55,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for transaction in transactions %}
+                        {% for transaction in recent_transactions %}
                         <tr>
                             <td>{{ transaction.date }}</td>
                             <td>{{ transaction.description }}</td>
@@ -71,9 +71,48 @@
                         {% empty %}
                         <tr>
                             <td colspan="4" class="text-center text-muted py-4">
-                                No transactions yet. Add your first one!
+                                No recent transactions.
+                            </td>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Past Transactions -->
+    <div class="card bg-white shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Past Transactions (Over 30 Days)</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in past_transactions %}
+                        <tr>
+                            <td>{{ transaction.date }}</td>
+                            <td>{{ transaction.description }}</td>
+                            <td>
+                                <span class="badge rounded-pill bg-light text-dark">
+                                    {{ transaction.category }}
+                                </span>
+                            </td>
+                            <td class="text-end {% if transaction.transaction_type == 'expense' %}text-danger{% else %}text-success{% endif %}">
+                                {% if transaction.transaction_type == 'expense' %}-{% endif %}€ {{ transaction.amount }}
                             </td>
                         </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">
+                                No past transactions.
+                            </td>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -112,10 +151,7 @@
     // Initialize all modals
     document.addEventListener('DOMContentLoaded', function() {
         var myModal = new bootstrap.Modal(document.getElementById('addTransactionModal'));
-        
-        // For testing - uncomment to automatically show modal on page load
-        // myModal.show();
-        
+
         // Add event listener to the button
         document.querySelector('[data-bs-target="#addTransactionModal"]').addEventListener('click', function() {
             myModal.show();
