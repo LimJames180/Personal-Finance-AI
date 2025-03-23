@@ -3,29 +3,39 @@
     <ul class="nav flex-column">
         <!-- Dashboard -->
         <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="{% url 'tracker_home' %}">🏠 Dashboard</a>
+            <a class="nav-link text-white" href="{% url 'tracker_home' %}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
         </li>
 
         <!-- Transactions -->
         <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="{% url 'transaction_history' %}">💸 Transactions</a>
+            <a class="nav-link text-white" href="{% url 'transaction_history' %}">
+                <i class="fas fa-money-bill-wave"></i> Transactions
+            </a>
+        </li>
+
+        <!-- Debt History -->
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white" href="{% url 'debt_history' %}">
+                <i class="fas fa-credit-card"></i> Debt History
+            </a>
         </li>
 
         <hr class="bg-light">
 
-        <!-- advisor -->
+        <!-- AI Finance Advisor -->
         <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="{% url 'advisor' %}">AI Finance Advisor</a>
+            <a class="nav-link text-white" href="{% url 'advisor' %}">
+                <i class="fas fa-robot"></i> AI Finance Advisor
+            </a>
         </li>
 
         <!-- Settings -->
         <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="{% url 'settings' %}">⚙️ Settings</a>
+            <a class="nav-link text-white" href="{% url 'settings' %}">
+                <i class="fas fa-cog"></i> Settings
+            </a>
         </li>
-         <!-- Debt History -->
-        <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="{% url 'debt_history' %}">💳 Debt History</a>
-        </li>
-
     </ul>
 </div>

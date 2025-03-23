@@ -124,6 +124,7 @@ def transaction_history(request):
 
     # Pass data to the template
     context = {
+        'username': request.user.first_name if request.user.first_name else request.user.username,
         'total_expenses': total_expenses,
         'total_income': total_income,
         'net_balance': net_balance,
@@ -220,6 +221,7 @@ def home(request):
 
     # Pass data to the template
     context = {
+        'username': request.user.first_name if request.user.first_name else request.user.username,
         'total_spending': total_spending,
         'total_earnings': total_income,
         'budget_left': total_income - total_spending,
