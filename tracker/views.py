@@ -274,7 +274,7 @@ def advisor(request):
             # Fetch all transactions for the logged-in user and generate the AI response
             transaction_text = generate_transaction_data(request.user)
             debt_text = generate_debt_data(request.user)
-            ai_response = ai_reply(transaction_text, debt_text, chat_text)
+            ai_response = ai_reply(request.user.username, transaction_text, debt_text, chat_text)
             print(ai_response)
             # Return the AI response
             context = {

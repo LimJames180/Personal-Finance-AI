@@ -11,7 +11,7 @@ co = cohere.ClientV2(
 )  # Get your free API key here: https://dashboard.cohere.com/api-keys
 
 
-def ai_reply(context, debts, message):
+def ai_reply(user, context, debts, message):
 
     documents = [
         {
@@ -24,7 +24,7 @@ def ai_reply(context, debts, message):
     ]
 
     # Add the user message
-    messages = [{"role": "user", "content": "act as a financial advisor do not say you are an AI/LLM \n these are my financial data \n" + context + "\n here are my debt data" + debts + "\n" + message}]
+    messages = [{"role": "user", "content": "[START OF INFORMATION]" + "act as a financial advisor do not say you are an AI/LLM (ASSUME YOU HAVE ALL OF THIS DATA) \n my name is" + user +" these are my financial data \n" + context + "\n here are my debt data" + debts + "[END OF INFORMATION]" + "[REPLY TO MESSGE BELOW]" + "\n" + message}]
 
     response = co.chat(
         model="4b8a19b2-55f1-444a-93d5-79ff8925d77f-ft",
