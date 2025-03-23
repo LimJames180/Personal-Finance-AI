@@ -36,8 +36,8 @@
             <div class="card card-summary bg-white shadow-sm">
                 <div class="card-body">
                     <h6 class="text-secondary">Monthly Budget</h6>
-                    <h3 class="{% if remaining_budget < 0 %}text-danger{% else %}text-success{% endif %}">
-                        € {{ remaining_budget|default:"0.00" }}
+                    <h3 class="{% if budget_amount < 0 %}text-danger{% else %}text-success{% endif %}">
+                        € {{ budget_amount|default:"0.00" }}
                     </h3>
                     <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#setBudgetModal">
                         <i class="bi bi-gear"></i> Set Budget

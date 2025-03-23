@@ -43,11 +43,6 @@ def transaction_history(request):
         date__range=[start_date, current_date]
     ).order_by("date")
 
-    # Debugging: Print all transactions
-    print("All Transactions (Last 30 Days):")
-    for transaction in transactions:
-        print(f"ID: {transaction.id}, Date: {transaction.date}, Type: {transaction.transaction_type}, Amount: {transaction.amount}, Category: {transaction.category}")
-
     # Initialize data structures
     daily_spending = {}
     daily_income = {}
@@ -62,10 +57,6 @@ def transaction_history(request):
         labels.append(current_day.strftime("%d %b"))  # Format: "01 May", "02 May", etc.
         current_day += timedelta(days=1)
 
-    # Debugging: Print initialized daily_spending and daily_income
-    print("Initialized Daily Spending (Last 30 Days):", daily_spending)
-    print("Initialized Daily Income (Last 30 Days):", daily_income)
-
     # Populate daily spending and income
     for transaction in transactions:
         day_str = transaction.date.strftime("%Y-%m-%d")
@@ -73,10 +64,6 @@ def transaction_history(request):
             daily_spending[day_str] += transaction.amount
         elif transaction.transaction_type == 'income':
             daily_income[day_str] += transaction.amount
-
-    # Debugging: Print populated daily_spending and daily_income
-    print("Populated Daily Spending (Last 30 Days):", daily_spending)
-    print("Populated Daily Income (Last 30 Days):", daily_income)
 
     # Calculate cumulative spending and income
     cumulative_spending = []
@@ -86,20 +73,16 @@ def transaction_history(request):
     for day in labels:
         day_with_year = f"{day} {current_date.year}"  # Example: "01 May 2023"
         day_str = datetime.strptime(day_with_year, "%d %b %Y").strftime("%Y-%m-%d")
-        print(f"Day: {day}, Day with Year: {day_with_year}, Day String: {day_str}")
         total_spending += daily_spending.get(day_str, Decimal('0.00'))
         total_income += daily_income.get(day_str, Decimal('0.00'))
         cumulative_spending.append(float(total_spending))  # Convert to float for Chart.js
         cumulative_income.append(float(total_income))  # Convert to float for Chart.js
 
-    # Debugging: Print cumulative spending and income
-    print("Cumulative Spending (Last 30 Days):", cumulative_spending)
-    print("Cumulative Income (Last 30 Days):", cumulative_income)
-
     # Calculate total expenses and income for the last 30 days
     total_expenses = float(total_spending)
     total_income = float(total_income)
     net_balance = total_income - total_expenses
+
     # Get the current budget
     try:
         current_budget = Budget.objects.latest('created_at')
@@ -109,7 +92,6 @@ def transaction_history(request):
 
     # Calculate remaining budget (budget - expenses of last 30 days)
     remaining_budget = budget_amount - Decimal(total_expenses)
-
 
     # Fetch recent and past transactions
     recent_transactions = Transaction.objects.filter(
@@ -121,15 +103,6 @@ def transaction_history(request):
         user=request.user,
         date__lt=start_date
     ).order_by("-date")
-
-    # Debugging: Print recent and past transactions
-    print("Recent Transactions:")
-    for transaction in recent_transactions:
-        print(f"ID: {transaction.id}, Date: {transaction.date}, Type: {transaction.transaction_type}, Amount: {transaction.amount}")
-
-    print("Past Transactions:")
-    for transaction in past_transactions:
-        print(f"ID: {transaction.id}, Date: {transaction.date}, Type: {transaction.transaction_type}, Amount: {transaction.amount}")
 
     # Pass data to the template
     context = {
@@ -145,9 +118,9 @@ def transaction_history(request):
         'labels': labels,  # Days of the last 30 days
         'cumulative_spending': cumulative_spending,  # Cumulative spending data
         'cumulative_income': cumulative_income,  # Cumulative income data
+        'budget_amount': budget_amount,  # Current budget amount
     }
     return render(request, "tracker/transaction_history.html", context)
-
 
 def set_budget(request):
     if request.method == 'POST':
@@ -175,11 +148,6 @@ def home(request):
         date__lte=today  # Transactions up to today
     ).order_by("date")
 
-    # Debugging: Print all transactions
-    print("All Transactions (Current Month):")
-    for transaction in transactions:
-        print(f"ID: {transaction.id}, Date: {transaction.date}, Type: {transaction.transaction_type}, Amount: {transaction.amount}, Category: {transaction.category}")
-
     # Initialize data structures
     daily_spending = {}
     daily_income = {}
@@ -196,10 +164,6 @@ def home(request):
         labels.append(current_day.strftime("%d %b"))  # Format: "01 May", "02 May", etc.
         current_day += timedelta(days=1)
 
-    # Debugging: Print initialized daily_spending and daily_income
-    print("Initialized Daily Spending (Current Month):", daily_spending)
-    print("Initialized Daily Income (Current Month):", daily_income)
-
     # Populate daily spending and income
     for transaction in transactions:
         day_str = transaction.date.strftime("%Y-%m-%d")
@@ -208,25 +172,16 @@ def home(request):
         elif transaction.transaction_type == 'income':
             daily_income[day_str] += transaction.amount
 
-    # Debugging: Print populated daily_spending and daily_income
-    print("Populated Daily Spending (Current Month):", daily_spending)
-    print("Populated Daily Income (Current Month):", daily_income)
-
     # Calculate cumulative spending and income
     total_spending = Decimal('0.00')
     total_income = Decimal('0.00')
     for day in labels:
         day_with_year = f"{day} {today.year}"  # Example: "01 May 2023"
         day_str = datetime.strptime(day_with_year, "%d %b %Y").strftime("%Y-%m-%d")
-        print(f"Day: {day}, Day with Year: {day_with_year}, Day String: {day_str}")
         total_spending += daily_spending.get(day_str, Decimal('0.00'))
         total_income += daily_income.get(day_str, Decimal('0.00'))
         cumulative_spending.append(float(total_spending))  # Convert to float for Chart.js
         cumulative_income.append(float(total_income))  # Convert to float for Chart.js
-
-    # Debugging: Print cumulative spending and income
-    print("Cumulative Spending (Current Month):", cumulative_spending)
-    print("Cumulative Income (Current Month):", cumulative_income)
 
     # Calculate spending by category for the pie chart
     spending_by_category = Transaction.objects.filter(
@@ -239,9 +194,12 @@ def home(request):
     pie_labels = [item['category'] for item in spending_by_category]
     pie_data = [float(item['total']) for item in spending_by_category]
 
-    # Debugging: Print pie chart data
-    print("Pie Labels (Categories):", pie_labels)
-    print("Pie Data (Spending by Category):", pie_data)
+    # Get the current budget for the logged-in user
+    try:
+        current_budget = Budget.objects.latest('created_at')
+        budget_amount = current_budget.amount
+    except Budget.DoesNotExist:
+        budget_amount = 0
 
     # Pass data to the template
     context = {
@@ -254,7 +212,10 @@ def home(request):
         'income_data': cumulative_income,  # Cumulative income data
         'pie_labels': pie_labels,  # Categories for the pie chart
         'pie_data': pie_data,  # Spending amounts for the pie chart
+        'budget_amount': budget_amount,  # Current budget amount
+
     }
+    print(budget_amount)
     return render(request, 'tracker/home.html', context)
 
 def handle_chat_text(chat_text):

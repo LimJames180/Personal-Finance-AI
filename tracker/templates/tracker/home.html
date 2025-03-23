@@ -58,8 +58,9 @@
 <!-- Add Chart.js script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+ <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.2"></script>
+
 <script>
-    // Line Chart
     const ctxMonthly = document.getElementById('spendingIncomeChart');
     if (ctxMonthly) {
         new Chart(ctxMonthly, {
@@ -92,6 +93,22 @@
                 plugins: {
                     legend: {
                         position: 'top'
+                    },
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: {{ budget_amount }},
+                                yMax: {{ budget_amount }},
+                                borderColor: 'rgba(75, 192, 192, 0.4)',
+                                borderWidth: 2,
+                                label: {
+                                    content: 'Budget Line',
+                                    enabled: true,
+                                    position: 'center'
+                                }
+                            }
+                        }
                     }
                 },
                 scales: {
