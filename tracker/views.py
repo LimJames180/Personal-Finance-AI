@@ -206,7 +206,7 @@ def home(request):
         'username': request.user.first_name if request.user.first_name else request.user.username,
         'total_spending': total_spending,
         'total_earnings': total_income,
-        'budget_left': total_income - total_spending,
+        'budget_left': budget_amount - total_spending,
         'months': labels,  # Days of the month (e.g., "01 May", "02 May")
         'expense_data': cumulative_spending,  # Cumulative spending data
         'income_data': cumulative_income,  # Cumulative income data
@@ -284,41 +284,6 @@ def settings(request):
     # Placeholder for settings page
     return render(request, "tracker/settings.html")
 
-
-def dashboard_view(request):
-    user = request.user
-
-    # Query transactions for this user, grouped by date (or month)
-    transactions = Transaction.objects.filter(user=user)
-
-    # Prepare data for the graph (aggregated by day)
-    spending_data = defaultdict(float)
-    income_data = defaultdict(float)
-
-    for transaction in transactions:
-        date = transaction.date
-        if transaction.transaction_type == 'expense':
-            spending_data[date] += transaction.amount
-        elif transaction.transaction_type == 'income':
-            income_data[date] += transaction.amount
-
-    # Prepare the data for the line graph
-    dates = sorted(set(spending_data.keys()).union(set(income_data.keys())))
-    expense_values = [spending_data.get(date, 0) for date in dates]
-    income_values = [income_data.get(date, 0) for date in dates]
-
-    # Format dates for the chart labels
-    date_labels = [date.strftime('%b %d') for date in dates]
-
-    context = {
-        'total_spending': sum(expense_values),
-        'total_earnings': sum(income_values),
-        'budget_left': 1000 - sum(expense_values),  # Example: subtract spending from budget
-        'expense_data': expense_values,
-        'income_data': income_values,
-        'months': date_labels,
-    }
-    return render(request, 'tracker/home.html', context)
 
 
 @csrf_exempt
