@@ -17,23 +17,23 @@
             </div>
         </div>
     </div>
+<div class="text-end mb-3">
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addDebtModal">
+        <i class="bi bi-plus-circle"></i> Add Debt
+    </button>
+</div>
 
-    <!-- Debt List: Active Debts -->
-    <div class="card bg-white shadow-sm mb-4">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title mb-0">Active Debts</h5>
-                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addDebtModal">
-                    <i class="bi bi-plus-circle"></i> Add New Debt
-                </button>
-            </div>
+<!-- Debt List: Active Debts -->
+<div class="card bg-white shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Active Debts</h5>
 
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th></th>  <!-- Empty header for delete button -->
-                            <th>Debt Name</th>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th></th>  <!-- Empty header for delete button -->
+                        <th>Debt Name</th>
                             <th>Creditor</th>
                             <th>Status</th>
                             <th class="text-end">Amount Owed</th>

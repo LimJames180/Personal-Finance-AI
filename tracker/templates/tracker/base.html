@@ -4,8 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}Dashboard{% endblock %}</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
   <style>
@@ -16,37 +15,7 @@
     }
 
     .navbar {
-      background-color: #343a40 !important; /* Keep navbar dark in both modes */
-    }
-
-    /* Dark Mode */
-    body.dark-mode {
-      background-color: #121212;
-      color: #ffffff;
-    }
-
-    .dark-mode main {
-      background-color: #1e1e1e !important; /* Override the inline style */
-    }
-
-    .dark-mode .card {
-      background-color: #2d2d2d;
-      border-color: #333;
-    }
-
-    .dark-mode .card-header {
-      background-color: #3d3d3d;
-      border-color: #444;
-    }
-
-    .dark-mode .btn-outline-secondary {
-      border-color: #555;
-      color: #ffffff;
-    }
-
-    .dark-mode .btn-outline-secondary:hover {
-      background-color: #555;
-      color: #ffffff;
+      background-color: #343a40 !important; /* Keep navbar dark */
     }
   </style>
 </head>
@@ -57,29 +26,5 @@
       {% block content %}{% endblock %}
     </main>
   </div>
-
-  <script>
-    // Theme Settings
-    const lightModeButton = document.getElementById('light-mode');
-    const darkModeButton = document.getElementById('dark-mode');
-
-    // Apply saved theme on page load
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark-mode');
-    }
-
-    // Light Mode Button
-    lightModeButton.addEventListener('click', function () {
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('theme', 'light');
-    });
-
-    // Dark Mode Button
-    darkModeButton.addEventListener('click', function () {
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('theme', 'dark');
-    });
-  </script>
 </body>
 </html>
