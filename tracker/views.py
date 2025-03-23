@@ -238,7 +238,7 @@ def handle_chat_text(chat_text):
     print(f"Chat text received: {chat_text}")
 
 
-from .financialai import generate_transaction_data, ai_reply
+from .financialai import generate_transaction_data, ai_reply, generate_debt_data
 from .models import Debt
 
 from .financialai import generate_transaction_data, ai_reply
@@ -273,7 +273,8 @@ def advisor(request):
             print(2)
             # Fetch all transactions for the logged-in user and generate the AI response
             transaction_text = generate_transaction_data(request.user)
-            ai_response = ai_reply(transaction_text, chat_text)
+            debt_text = generate_debt_data(request.user)
+            ai_response = ai_reply(transaction_text, debt_text, chat_text)
             print(ai_response)
             # Return the AI response
             context = {
