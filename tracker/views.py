@@ -1,24 +1,15 @@
-from collections import defaultdict
 from datetime import datetime, timedelta
-from django.shortcuts import get_object_or_404, redirect
-
-from django.db.models import Sum
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .models import Transaction,Debt,Budget
-from .forms import TransactionForm,DebtForm
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .aitransaction import aitransaction
-
-
-from datetime import datetime, timedelta
-from django.db.models import Sum
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .forms import TransactionForm
 from decimal import Decimal
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
+
+from .aitransaction import aitransaction
+from .forms import DebtForm
+from .forms import TransactionForm
+from .models import Budget
 
 
 @login_required
@@ -223,7 +214,7 @@ def handle_chat_text(chat_text):
     print(f"Chat text received: {chat_text}")
 
 
-from .financialai import generate_transaction_data, ai_reply, generate_debt_data
+from .financialai import generate_debt_data
 from .models import Debt
 
 from .financialai import generate_transaction_data, ai_reply
