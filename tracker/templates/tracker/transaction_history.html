@@ -8,7 +8,7 @@
 
     <!-- Transaction Summary Cards -->
     <div class="row g-4 mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card card-summary bg-white shadow-sm">
                 <div class="card-body">
                     <h6 class="text-secondary">Recent Expenses</h6>
@@ -16,7 +16,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card card-summary bg-white shadow-sm">
                 <div class="card-body">
                     <h6 class="text-secondary">Recent Income</h6>
@@ -24,11 +24,24 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card card-summary bg-white shadow-sm">
                 <div class="card-body">
                     <h6 class="text-secondary">Net Balance</h6>
                     <h3 class="text-primary">€ {{ net_balance|default:"0.00" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-summary bg-white shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-secondary">Monthly Budget</h6>
+                    <h3 class="{% if remaining_budget < 0 %}text-danger{% else %}text-success{% endif %}">
+                        € {{ remaining_budget|default:"0.00" }}
+                    </h3>
+                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#setBudgetModal">
+                        <i class="bi bi-gear"></i> Set Budget
+                    </button>
                 </div>
             </div>
         </div>
@@ -40,7 +53,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">Recent Transactions (Last 30 Days)</h5>
             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
-                <i class="bi bi-plus-circle"></i> Add New
+                <i class="bi bi-plus-circle"></i> Add Transaction
             </button>
         </div>
 
@@ -191,6 +204,32 @@
     </div>
 </div>
 
+<!-- Set Budget Modal -->
+<div class="modal fade" id="setBudgetModal" tabindex="-1" aria-labelledby="setBudgetModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="setBudgetModalLabel">Set Monthly Budget</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'set_budget' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="budget_amount" class="form-label">Monthly Budget Amount (€)</label>
+                        <input type="number" class="form-control" id="budget_amount" name="budget_amount" step="0.01" min="0" value="{{ current_budget|default:'0.00' }}" required>
+                        <div class="form-text">Enter your total budget for the month.</div>
+                    </div>
+                    <div class="text-end mt-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Budget</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Make sure Bootstrap JS and Popper.js are included -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
@@ -199,10 +238,16 @@
     // Initialize all modals
     document.addEventListener('DOMContentLoaded', function() {
         var myModal = new bootstrap.Modal(document.getElementById('addTransactionModal'));
+        var budgetModal = new bootstrap.Modal(document.getElementById('setBudgetModal'));
 
-        // Add event listener to the button
+        // Add event listener to the transaction button
         document.querySelector('[data-bs-target="#addTransactionModal"]').addEventListener('click', function() {
             myModal.show();
+        });
+
+        // Add event listener to the budget button
+        document.querySelector('[data-bs-target="#setBudgetModal"]').addEventListener('click', function() {
+            budgetModal.show();
         });
     });
 
@@ -238,52 +283,52 @@
     }
 
     // Handle AI analysis button click
-document.getElementById('ai-analysis-button').addEventListener('click', function() {
-    const aiText = document.getElementById('ai-analysis').value;
-    if (aiText) {
-        analyzeText(aiText).then(data => {
-            document.querySelector('input[name="amount"]').value = data.amount;
-            document.querySelector('select[name="category"]').value = data.category;
-            document.querySelector('input[name="date"]').value = data.date;
-            document.querySelector('input[name="description"]').value = data.description;
-            document.querySelector(`input[name="transaction_type"][value="${data.type}"]`).checked = true;
-        });
-    }
-});
-
-async function analyzeText(text) {
-    const response = await fetch("{% url 'analyze_text' %}", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: new URLSearchParams({
-            'text': text
-        })
+    document.getElementById('ai-analysis-button').addEventListener('click', function() {
+        const aiText = document.getElementById('ai-analysis').value;
+        if (aiText) {
+            analyzeText(aiText).then(data => {
+                document.querySelector('input[name="amount"]').value = data.amount;
+                document.querySelector('select[name="category"]').value = data.category;
+                document.querySelector('input[name="date"]').value = data.date;
+                document.querySelector('input[name="description"]').value = data.description;
+                document.querySelector(`input[name="transaction_type"][value="${data.type}"]`).checked = true;
+            });
+        }
     });
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
+
+    async function analyzeText(text) {
+        const response = await fetch("{% url 'analyze_text' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: new URLSearchParams({
+                'text': text
+            })
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return await response.json();
     }
-    return await response.json();
-}
 
 
-// Helper function to get CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
+        return cookieValue;
     }
-    return cookieValue;
-}
 </script>
 
 <!-- Add Bootstrap Icons if not already included in base template -->

@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Transaction,Debt
+from .models import Transaction,Debt,Budget
 from .forms import TransactionForm,DebtForm
 
 from django.http import JsonResponse
@@ -17,7 +17,6 @@ from datetime import datetime, timedelta
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Transaction
 from .forms import TransactionForm
 from decimal import Decimal
 
@@ -101,6 +100,16 @@ def transaction_history(request):
     total_expenses = float(total_spending)
     total_income = float(total_income)
     net_balance = total_income - total_expenses
+    # Get the current budget
+    try:
+        current_budget = Budget.objects.latest('created_at')
+        budget_amount = current_budget.amount
+    except Budget.DoesNotExist:
+        budget_amount = 0
+
+    # Calculate remaining budget (budget - expenses of last 30 days)
+    remaining_budget = budget_amount - Decimal(total_expenses)
+
 
     # Fetch recent and past transactions
     recent_transactions = Transaction.objects.filter(
@@ -138,6 +147,21 @@ def transaction_history(request):
         'cumulative_income': cumulative_income,  # Cumulative income data
     }
     return render(request, "tracker/transaction_history.html", context)
+
+
+def set_budget(request):
+    if request.method == 'POST':
+        budget_amount = request.POST.get('budget_amount')
+
+        print(f"Received budget amount: {budget_amount}")  # Debugging output
+
+        if budget_amount:
+            new_budget = Budget.objects.create(amount=float(budget_amount))
+            print(f"New budget saved: ID={new_budget.id}, Amount={new_budget.amount}")  # Debugging output
+
+        return redirect('transaction_history')
+    return redirect('transaction_history')
+
 @login_required
 def home(request):
     # Get the current date and the first day of the current month

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 CATEGORY_CHOICES = [
     ("Food", "Food"),
@@ -21,6 +22,14 @@ TRANSACTION_TYPE_CHOICES = [
     ("expense", "Expense"),
     ("income", "Income"),
 ]
+
+
+class Budget(models.Model):
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Budget: {self.amount} created on {self.created_at.strftime('%Y-%m-%d')}"
 
 class Transaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
